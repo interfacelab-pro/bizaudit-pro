@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BizAudit — Cold Prospect Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ─── SCREEN: LOADING ─── -->
+<div id="screen-loading" class="screen">
+  <div class="loading-wrap">
+    <div class="loading-logo">B</div>
+    <div class="loading-name">BizAudit</div>
+    <div class="loading-spinner"></div>
+  </div>
+</div>
+
+<!-- ─── SCREEN: LOGIN ─── -->
+<div id="screen-login" class="screen" style="display:none">
+  <div class="login-bg"></div>
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">B</div>
+      <h1 class="login-title">BizAudit</h1>
+      <p class="login-sub">Cold Prospect Framework — Sign in to continue</p>
+    </div>
+    <div class="login-form">
+      <div class="login-field">
+        <label class="login-label">Email address</label>
+        <input class="login-input" type="email" id="login-email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <div class="login-field">
+        <label class="login-label">Password</label>
+        <input class="login-input" type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <div class="login-error" id="login-error"></div>
+      <button class="login-btn" id="login-btn" onclick="handleLogin()">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCREEN: DASHBOARD ─── -->
+<div id="screen-dashboard" class="screen" style="display:none">
+  <header class="dash-header">
+    <div class="topbar-brand">
+      <div class="topbar-logo">B</div>
+      <span class="topbar-name">BizAudit</span>
+      <span class="topbar-sub">Cold Prospect Framework</span>
+    </div>
+    <div class="dash-header-right">
+      <span class="dash-user-email" id="dash-user-email"></span>
+      <button class="btn-signout" onclick="handleSignOut()">Sign Out</button>
+    </div>
+  </header>
+  <div class="dashboard-body">
+    <div class="dash-title-row">
+      <div>
+        <h1 class="dash-title">Businesses</h1>
+        <p class="dash-subtitle">Select a business to continue its audit, or create a new one</p>
+      </div>
+      <button class="btn btn-primary" onclick="openNewBusinessModal()">+ New Business</button>
+    </div>
+    <div id="businesses-grid" class="businesses-grid">
+      <!-- cards injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCREEN: AUDIT ─── -->
+<div id="screen-audit" class="screen" style="display:none">
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo">B</div>
+      <span class="topbar-name">BizAudit</span>
+      <span class="topbar-divider">·</span>
+      <span class="topbar-biz-name" id="topbar-biz-name">—</span>
+    </div>
+    <div class="topbar-right">
+      <div class="progress-pill"><span id="done-count">0</span>/<span id="total-count">0</span></div>
+      <div class="overall-bar-wrap"><div class="overall-bar" id="overall-bar"></div></div>
+      <button class="btn-findings" onclick="openModal()">
+        <span class="dot"></span>View Findings
+      </button>
+      <button class="btn-back" onclick="backToDashboard()">← Businesses</button>
+    </div>
+  </header>
+  <div class="save-banner">
+    <span class="dot-live"></span>
+    <span id="global-save-status">All changes saved to cloud</span>
+  </div>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main" id="main"></main>
+  </div>
+</div>
+
+<!-- ─── MODAL: NEW BUSINESS ─── -->
+<div class="modal-overlay" id="new-biz-overlay" onclick="handleNewBizOverlayClick(event)" style="display:none;opacity:0">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-title">New Business</div>
+        <div class="modal-sub">Enter the business name to start a new audit</div>
+      </div>
+      <button class="modal-close" onclick="closeNewBusinessModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="login-field" style="margin-bottom:12px">
+        <label class="login-label">Business Name</label>
+        <input class="login-input" type="text" id="new-biz-name" placeholder="e.g. Al-Fatah Superstore Lahore" maxlength="100" />
+      </div>
+      <div class="login-error" id="new-biz-error"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+        <button class="btn btn-ghost" onclick="closeNewBusinessModal()">Cancel</button>
+        <button class="btn btn-primary" id="create-biz-btn" onclick="createNewBusiness()">Create &amp; Start Audit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: GUIDELINE ─── -->
+<div class="modal-overlay guideline-overlay" id="guideline-modal" onclick="handleGuidelineOverlayClick(event)" style="display:none;opacity:0;transition:opacity 0.2s">
+  <div class="modal modal-guideline">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-title" id="guideline-title">Step Guide</div>
+        <div class="modal-sub" id="guideline-phase"></div>
+      </div>
+      <button class="modal-close" onclick="closeGuidelineModal()">✕</button>
+    </div>
+    <div class="modal-body" id="guideline-body" style="padding:20px 24px;display:flex;flex-direction:column;gap:0">
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: FINDINGS ─── -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-title">Audit Findings</div>
+        <div class="modal-sub" id="modal-sub">All recorded findings for this audit</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <button class="modal-tab active" onclick="switchTab('summary')">Summary</button>
+        <button class="modal-tab" onclick="switchTab('all')">All Findings</button>
+        <button class="modal-tab" onclick="switchTab('export')">Export / AI Report</button>
+      </div>
+      <div class="modal-tab-content active" id="tab-summary"></div>
+      <div class="modal-tab-content" id="tab-all"></div>
+      <div class="modal-tab-content" id="tab-export"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
